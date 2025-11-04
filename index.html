@@ -8,71 +8,92 @@
 </head>
 <body>
 
-    <!-- Main Container -->
-    <div class="container">
-
-        <!-- Home Page -->
-        <div id="home-page" class="page">
-            <h1>WAI PRODUCT REVIEW SCRAPER/ANALYSIS TEST</h1>
-            <div class="button-container">
-                <button id="show-individual-page-btn" class="btn">Scrape/analyze individual product</button>
-                <button id="show-rollup-page-btn" class="btn" disabled>Upload roll-up interchange file (multiple products)</button>
-            </div>
-        </div>
-
-        <!-- Scrape/Analyze Individual Product Page -->
-        <div id="individual-product-page" class="page hidden">
-            <h2>Scrape/Analyze Individual Product</h2>
-            <div class="form-container">
-                <!-- Top Row -->
-                <div class="form-row">
-                    <div class="input-group">
-                        <label for="part-number-input">Enter Amazon ASIN</label>
-                        <input type="text" id="part-number-input" placeholder="e.g., B08C1W5N87">
-                    </div>
-                    <div class="input-group">
-                        <label>Website to scrape</label>
-                        <input type="text" value="Amazon" disabled>
-                    </div>
+    <!-- Login Page -->
+    <div id="login-page">
+        <div class="login-container">
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
                 </div>
-                <!-- Bottom Row -->
-                <div class="form-row">
-                    <div class="input-group date-range-group">
-                        <label>Reviews date range (ignored for now)</label>
-                        <div>
-                            <input type="text" placeholder="Start Date" id="date-start-input-individual" disabled>
-                            <input type="text" placeholder="End Date" id="date-end-input-individual" disabled>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <p id="login-error" class="hidden">Invalid username or password.</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Container (Initially Hidden) -->
+    <div id="main-app" class="hidden">
+        <div class="container">
+
+            <!-- Home Page -->
+            <div id="home-page" class="page">
+                <h1>WAI PRODUCT REVIEW SCRAPER/ANALYSIS TEST</h1>
+                <div class="button-container">
+                    <button id="show-individual-page-btn" class="btn">Scrape/analyze individual product</button>
+                    <button id="show-rollup-page-btn" class="btn" disabled>Upload roll-up interchange file (multiple products)</button>
+                </div>
+            </div>
+
+            <!-- Scrape/Analyze Individual Product Page -->
+            <div id="individual-product-page" class="page hidden">
+                <h2>Scrape/Analyze Individual Product</h2>
+                <div class="form-container">
+                    <!-- Top Row -->
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="part-number-input">Enter Amazon ASIN</label>
+                            <input type="text" id="part-number-input" placeholder="e.g., B08C1W5N87">
                         </div>
-                        <label class="checkbox-label"><input type="checkbox" id="default-date-checkbox-individual" checked disabled> Scrape reviews from all-time </label>
+                        <div class="input-group">
+                            <label>Website to scrape</label>
+                            <input type="text" value="Amazon" disabled>
+                        </div>
                     </div>
-                    <button id="scrape-analyze-btn" class="btn">Scrape and Analyze</button>
+                    <!-- Bottom Row -->
+                    <div class="form-row">
+                        <div class="input-group date-range-group">
+                            <label>Reviews date range (ignored for now)</label>
+                            <div>
+                                <input type="text" placeholder="Start Date" id="date-start-input-individual" disabled>
+                                <input type="text" placeholder="End Date" id="date-end-input-individual" disabled>
+                            </div>
+                            <label class="checkbox-label"><input type="checkbox" id="default-date-checkbox-individual" checked disabled> Scrape reviews from all-time </label>
+                        </div>
+                        <button id="scrape-analyze-btn" class="btn">Scrape and Analyze</button>
+                    </div>
                 </div>
+
+                <div id="loading-indicator-individual" class="hidden">
+                    <p>Processing<span>.</span><span>.</span><span>.</span></p>
+                </div>
+                
+                <div id="individual-results" class="results-container hidden">
+                    <h3>Analysis Summary</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Part Number (ASIN)</th>
+                                <th>Average Star Rating</th>
+                                <th>Total Review Count</th>
+                                <th>Total Negative Review Count (1-2 stars)</th>
+                                <th>Negative Review Category</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body"></tbody>
+                    </table>
+                    <a href="#" id="download-link-individual" class="btn">Download result csv</a>
+                </div>
+
+                <button class="btn btn-grey cancel-btn">Cancel</button>
             </div>
 
-            <div id="loading-indicator-individual" class="hidden">
-                <p>Processing<span>.</span><span>.</span><span>.</span></p>
-            </div>
-            
-            <div id="individual-results" class="results-container hidden">
-                <h3>Analysis Summary</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Part Number (ASIN)</th>
-                            <th>Average Star Rating</th>
-                            <th>Total Review Count</th>
-                            <th>Total Negative Review Count (1-2 stars)</th>
-                            <th>Negative Review Category</th>
-                        </tr>
-                    </thead>
-                    <tbody id="results-body"></tbody>
-                </table>
-                <a href="#" id="download-link-individual" class="btn">Download result csv</a>
-            </div>
-
-            <button class="btn btn-grey cancel-btn">Cancel</button>
         </div>
-
     </div>
 
     <script src="script.js"></script>

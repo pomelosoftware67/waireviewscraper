@@ -1,10 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
-
+    
     // --- Page Elements ---
+    const loginPage = document.getElementById('login-page');
+    const mainApp = document.getElementById('main-app');
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
+
     const homePage = document.getElementById('home-page');
     const individualProductPage = document.getElementById('individual-product-page');
 
-    // --- Navigation ---
+    // --- Login Logic ---
+    // Check session storage to see if user is already logged in
+    if (sessionStorage.getItem('isLoggedIn') === 'true') {
+        loginPage.classList.add('hidden');
+        mainApp.classList.remove('hidden');
+    }
+
+    loginForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        if (username === 'wai1' && password === 'wai1') {
+            sessionStorage.setItem('isLoggedIn', 'true');
+            loginPage.classList.add('hidden');
+            mainApp.classList.remove('hidden');
+            loginError.classList.add('hidden');
+        } else {
+            loginError.classList.remove('hidden');
+        }
+    });
+
+
+    // --- Main App Navigation ---
     document.getElementById('show-individual-page-btn').addEventListener('click', () => {
         homePage.classList.add('hidden');
         individualProductPage.classList.remove('hidden');
@@ -47,21 +75,18 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                // If the server responded with an error, show it
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'An unknown error occurred.');
             }
 
-            // Get the CSV content from the response
             const csvContent = await response.text();
             
             if (csvContent === "No reviews found.") {
                  alert("No 1-star or 2-star reviews were found for this ASIN.");
-                 resultsBody.innerHTML = ''; // Clear previous results
-                 return; // Stop execution
+                 resultsBody.innerHTML = '';
+                 return;
             }
 
-            // --- Populate UI and set the download link ---
             // 1. Create a Blob for the download link
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
@@ -69,14 +94,24 @@ document.addEventListener('DOMContentLoaded', () => {
             downloadLinkIndividual.download = `${asin}_negative_reviews.csv`;
 
             // 2. Display a simple summary in the results table
-            // Subtract 1 for the header row
-            const reviewCount = (csvContent.match(/\n/g) || []).length;
+            // We get this info from the CSV itself by splitting it.
+            const lines = csvContent.split('\n');
+            const headers = lines[0].split(',').map(h => h.replace(/"/g, ''));
+            const values = lines[1].split(',').map(v => v.replace(/"/g, ''));
+            
+            const reviewCount = values[headers.indexOf('Review Count')];
+            const avgRating = values[headers.indexOf('Average Star Rating - Current')];
+            
+            // Count how many "Review X" columns have content
+            const negativeReviewCount = headers.filter(h => h.startsWith('Review ')).length;
+
+
             resultsBody.innerHTML = `
                 <tr>
                     <td>${asin}</td>
-                    <td>N/A (1-2 Stars Only)</td>
-                    <td>${reviewCount > 0 ? reviewCount : 0}</td>
-                    <td>${reviewCount > 0 ? reviewCount : 0}</td>
+                    <td>${avgRating}</td>
+                    <td>${reviewCount}</td>
+                    <td>${negativeReviewCount}</td>
                     <td>N/A</td>
                 </tr>
             `;
@@ -87,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`Error: ${error.message}`);
             console.error('Scraping failed:', error);
         } finally {
-            // Always hide the loading indicator
             loadingIndicatorIndividual.classList.add('hidden');
         }
     });
