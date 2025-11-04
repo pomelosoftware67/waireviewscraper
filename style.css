@@ -11,7 +11,7 @@ html, body {
 /* --- LOGIN PAGE --- */
 #login-page {
     width: 100%;
-    min-height: 90vh; /* Use vh to ensure it takes up viewport height */
+    min-height: 90vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -32,7 +32,7 @@ html, body {
 .login-container .input-group {
     text-align: left;
     margin-bottom: 20px;
-    flex-grow: 0; /* Override flex-grow for login page */
+    flex-grow: 0;
 }
 .login-container label {
     display: block;
@@ -60,13 +60,13 @@ html, body {
     text-align: center;
     width: 90%;
     max-width: 900px;
-    margin: 0 auto; /* Center container within main-app */
+    margin: 0 auto;
     padding-top: 5vh;
 }
 
 /* Page visibility utility */
 .page { display: block; }
-.hidden { display: none; }
+.hidden { display: none !important; } /* <<< THE FIX IS HERE */
 
 /* Headings */
 h1 { font-size: 2.5rem; text-transform: uppercase; margin-bottom: 40px; font-weight: 300; }
