@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAI Product Review Scraper/Analysis</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Main Container -->
+    <div class="container">
+
+        <!-- Home Page -->
+        <div id="home-page" class="page">
+            <h1>WAI PRODUCT REVIEW SCRAPER/ANALYSIS TEST</h1>
+            <div class="button-container">
+                <button id="show-individual-page-btn" class="btn">Scrape/analyze individual product</button>
+                <button id="show-rollup-page-btn" class="btn">Upload roll-up interchange file (multiple products)</button>
+            </div>
+        </div>
+
+        <!-- Scrape/Analyze Individual Product Page -->
+        <div id="individual-product-page" class="page hidden">
+            <h2>Scrape/Analyze Individual Product</h2>
+            <div class="form-container">
+                <!-- Top Row -->
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="part-number-input">Enter part number</label>
+                        <input type="text" id="part-number-input" placeholder="Part number">
+                    </div>
+                    <div class="input-group">
+                        <label>Website to scrape</label>
+                        <div class="dropdown-container">
+                            <div class="dropdown-display" tabindex="0">
+                                <span id="dropdown-text">Select Website/s</span>
+                            </div>
+                            <div class="dropdown-options">
+                                <ul>
+                                    <li><label><input type="checkbox" class="website-checkbox" value="All"> All</label></li>
+                                    <li><label><input type="checkbox" class="website-checkbox" value="Amazon"> Amazon</label></li>
+                                    <li><label><input type="checkbox" class="website-checkbox" value="CarParts.com"> CarParts.com</label></li>
+                                    <li><label><input type="checkbox" class="website-checkbox" value="O'reilly Auto"> O'reilly Auto</label></li>
+                                    <li><label><input type="checkbox" class="website-checkbox" value="NAPA"> NAPA</label></li>
+                                    <li><label><input type="checkbox" class="website-checkbox" value="AutoZone"> AutoZone</label></li>
+                                    <li><label><input type="checkbox" class="website-checkbox" value="Advance"> Advance</label></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Bottom Row -->
+                <div class="form-row">
+                    <div class="input-group date-range-group">
+                        <label>Reviews date range</label>
+                        <div>
+                            <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="Start Date" id="date-start-input-individual">
+                            <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="End Date" id="date-end-input-individual">
+                        </div>
+                        <label class="checkbox-label"><input type="checkbox" id="default-date-checkbox-individual"> Scrape reviews from all-time </label>
+                    </div>
+                    <button id="scrape-analyze-btn" class="btn">Scrape and Analyze</button>
+                </div>
+            </div>
+
+            <div id="loading-indicator-individual" class="hidden">
+                <p>Processing<span>.</span><span>.</span><span>.</span></p>
+            </div>
+            
+            <div id="individual-results" class="results-container hidden">
+                <h3>Analysis Summary</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Part Number</th>
+                            <th>Average Star Rating</th>
+                            <th>Total Review Count</th>
+                            <th>Total Negative Review Count (1-2 stars)</th>
+                            <th>Negative Review Category</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-body"></tbody>
+                </table>
+                <a href="#" id="download-link-individual" class="btn">Download result csv</a>
+            </div>
+
+            <button class="btn btn-grey cancel-btn">Cancel</button>
+        </div>
+
+        <!-- Upload Roll-up Interchange File Page -->
+        <div id="rollup-page" class="page hidden">
+            <h2>Upload Roll-up Interchange File</h2>
+            
+            <div id="upload-section">
+                <div class="form-container">
+                    <div class="input-group date-range-group">
+                        <label>Reviews date range</label>
+                        <div>
+                            <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="Start Date" id="date-start-input-rollup">
+                            <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="End Date" id="date-end-input-rollup">
+                        </div>
+                         <label class="checkbox-label"><input type="checkbox" id="default-date-checkbox-rollup"> Scrape reviews from all-time </label>
+                    </div>
+                </div>
+
+                <label for="csv-upload" class="btn">Upload roll-up interchange file</label>
+                <input type="file" id="csv-upload" accept=".csv" style="display: none;">
+
+                <div class="warning-textbox">
+                    <p><strong>Rules:</strong> CSV file only, first column should be WAI part numbers, column headers should be homepage URL.</p>
+                </div>
+            </div>
+
+            <div id="loading-indicator-rollup" class="hidden">
+                <p>Processing<span>.</span><span>.</span><span>.</span></p>
+            </div>
+
+            <div id="download-section" class="hidden">
+                <p>Generated file is ready for download.</p>
+                <a href="#" id="download-link-rollup" class="btn">Download result csv</a>
+            </div>
+
+            <button class="btn btn-grey cancel-btn">Cancel</button>
+        </div>
+
+        <!-- Negative Reviews Page -->
+        <div id="negative-reviews-page" class="page hidden">
+            <h2 id="negative-reviews-title">Negative reviews for...</h2>
+            <div id="negative-reviews-container">
+                <!-- Negative reviews will be populated here by script.js -->
+            </div>
+            <button id="back-to-results-btn" class="btn btn-grey">Back to Results</button>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
