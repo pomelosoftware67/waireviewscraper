@@ -1,19 +1,29 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- Page Elements ---
+    // --- Elements ---
     const loginPage = document.getElementById('login-page');
     const mainApp = document.getElementById('main-app');
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
+    const logoutBtn = document.getElementById('logout-btn');
 
-    const homePage = document.getElementById('home-page');
-    const individualProductPage = document.getElementById('individual-product-page');
+    const fileInput = document.getElementById('file-input');
+    const fileMsg = document.querySelector('.file-msg');
+    const fileInfo = document.getElementById('file-info');
+    const filenameDisplay = document.getElementById('filename-display');
+    const startScrapeBtn = document.getElementById('start-scrape-btn');
+
+    const uploadSection = document.getElementById('upload-section');
+    const processingSection = document.getElementById('processing-section');
+    const resultsSection = document.getElementById('results-section');
+    const progressBar = document.getElementById('progress-bar');
+    const statusLog = document.getElementById('status-log');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const resetBtn = document.getElementById('reset-btn');
 
     // --- Login Logic ---
-    // Check session storage to see if user is already logged in
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
-        loginPage.classList.add('hidden');
-        mainApp.classList.remove('hidden');
+        showMainApp();
     }
 
     loginForm.addEventListener('submit', (event) => {
@@ -23,112 +33,108 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (username === 'wai1' && password === 'wai1') {
             sessionStorage.setItem('isLoggedIn', 'true');
-            loginPage.classList.add('hidden');
-            mainApp.classList.remove('hidden');
-            loginError.classList.add('hidden');
+            showMainApp();
         } else {
             loginError.classList.remove('hidden');
         }
     });
 
-
-    // --- Main App Navigation ---
-    document.getElementById('show-individual-page-btn').addEventListener('click', () => {
-        homePage.classList.add('hidden');
-        individualProductPage.classList.remove('hidden');
+    logoutBtn.addEventListener('click', () => {
+        sessionStorage.removeItem('isLoggedIn');
+        mainApp.classList.add('hidden');
+        loginPage.classList.remove('hidden');
     });
 
-    document.querySelectorAll('.cancel-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            individualProductPage.classList.add('hidden');
-            homePage.classList.remove('hidden');
-            resetIndividualPage();
-        });
-    });
-
-    // --- Individual Product Page Logic ---
-    const partNumberInput = document.getElementById('part-number-input');
-    const scrapeAnalyzeBtn = document.getElementById('scrape-analyze-btn');
-    const loadingIndicatorIndividual = document.getElementById('loading-indicator-individual');
-    const individualResultsContainer = document.getElementById('individual-results');
-    const resultsBody = document.getElementById('results-body');
-    const downloadLinkIndividual = document.getElementById('download-link-individual');
-
-    scrapeAnalyzeBtn.addEventListener('click', async () => {
-        const asin = partNumberInput.value.trim();
-        if (!asin) {
-            alert('Please enter an Amazon ASIN.');
-            return;
-        }
-
-        individualResultsContainer.classList.add('hidden');
-        loadingIndicatorIndividual.classList.remove('hidden');
-
-        try {
-            // Call our Netlify serverless function
-            const response = await fetch('/.netlify/functions/scrape-amazon', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ asin: asin }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'An unknown error occurred.');
-            }
-
-            const csvContent = await response.text();
-            
-            if (csvContent === "No reviews found.") {
-                 alert("No 1-star or 2-star reviews were found for this ASIN.");
-                 resultsBody.innerHTML = '';
-                 return;
-            }
-
-            // 1. Create a Blob for the download link
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            downloadLinkIndividual.href = url;
-            downloadLinkIndividual.download = `${asin}_negative_reviews.csv`;
-
-            // 2. Display a simple summary in the results table
-            // We get this info from the CSV itself by splitting it.
-            const lines = csvContent.split('\n');
-            const headers = lines[0].split(',').map(h => h.replace(/"/g, ''));
-            const values = lines[1].split(',').map(v => v.replace(/"/g, ''));
-            
-            const reviewCount = values[headers.indexOf('Review Count')];
-            const avgRating = values[headers.indexOf('Average Star Rating - Current')];
-            
-            // Count how many "Review X" columns have content
-            const negativeReviewCount = headers.filter(h => h.startsWith('Review ')).length;
-
-
-            resultsBody.innerHTML = `
-                <tr>
-                    <td>${asin}</td>
-                    <td>${avgRating}</td>
-                    <td>${reviewCount}</td>
-                    <td>${negativeReviewCount}</td>
-                    <td>N/A</td>
-                </tr>
-            `;
-            
-            individualResultsContainer.classList.remove('hidden');
-
-        } catch (error) {
-            alert(`Error: ${error.message}`);
-            console.error('Scraping failed:', error);
-        } finally {
-            loadingIndicatorIndividual.classList.add('hidden');
-        }
-    });
-
-    function resetIndividualPage() {
-        partNumberInput.value = '';
-        loadingIndicatorIndividual.classList.add('hidden');
-        individualResultsContainer.classList.add('hidden');
+    function showMainApp() {
+        loginPage.classList.add('hidden');
+        mainApp.classList.remove('hidden');
+        resetUI();
     }
+
+
+    // --- File Input Logic ---
+    fileInput.addEventListener('change', (e) => {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            filenameDisplay.textContent = file.name;
+            fileInfo.classList.remove('hidden');
+            fileMsg.textContent = "File Selected";
+            startScrapeBtn.disabled = false;
+        }
+    });
+
+
+    // --- Scrape Button Logic ---
+    startScrapeBtn.addEventListener('click', () => {
+        // 1. UI Updates
+        uploadSection.classList.add('hidden');
+        processingSection.classList.remove('hidden');
+        loadingSpinner.classList.remove('hidden');
+        addLog("Initializing upload...");
+
+        // 2. Prepare Data (For when we have the backend)
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // --- TODO: REPLACE THIS SECTION WITH REAL BACKEND FETCH CALL ---
+        // Simulate a process for the Demo
+        simulateBackendProcess(); 
+        // ---------------------------------------------------------------
+    });
+
+    resetBtn.addEventListener('click', resetUI);
+
+    function resetUI() {
+        // Reset Logic
+        fileInput.value = '';
+        fileMsg.textContent = "Drag & Drop CSV here or Click to Browse";
+        fileInfo.classList.add('hidden');
+        startScrapeBtn.disabled = true;
+        
+        uploadSection.classList.remove('hidden');
+        processingSection.classList.add('hidden');
+        resultsSection.classList.add('hidden');
+        
+        progressBar.style.width = '0%';
+        statusLog.innerHTML = '<p class="log-entry">Waiting to start...</p>';
+    }
+
+    function addLog(message) {
+        const p = document.createElement('p');
+        p.className = 'log-entry';
+        p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        statusLog.appendChild(p);
+        statusLog.scrollTop = statusLog.scrollHeight; // Auto scroll to bottom
+    }
+
+    // --- MOCK FUNCTION (To be removed later) ---
+    function simulateBackendProcess() {
+        let progress = 0;
+        
+        addLog("File uploaded successfully.");
+        addLog("Sending to Apify Scraper...");
+
+        const interval = setInterval(() => {
+            progress += 10;
+            progressBar.style.width = `${progress}%`;
+
+            if (progress === 30) addLog("Scraping Amazon (20 ASINs detected)...");
+            if (progress === 60) addLog("Scraping Bazaarvoice Reviews...");
+            if (progress === 80) addLog("Cleaning data and formatting CSV...");
+
+            if (progress >= 100) {
+                clearInterval(interval);
+                loadingSpinner.classList.add('hidden');
+                addLog("Process Complete!");
+                
+                // Show Results
+                setTimeout(() => {
+                    processingSection.classList.add('hidden');
+                    resultsSection.classList.remove('hidden');
+                }, 1000);
+            }
+        }, 800); // Fast simulation
+    }
+
 });

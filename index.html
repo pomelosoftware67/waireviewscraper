@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WAI Product Review Scraper/Analysis</title>
+    <title>WAI Bulk Review Scraper</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
     <!-- Login Page -->
     <div id="login-page">
         <div class="login-container">
-            <h2>Login</h2>
+            <h2>WAI Scraper Login</h2>
             <form id="login-form">
                 <div class="input-group">
                     <label for="username">Username</label>
@@ -27,70 +27,59 @@
         </div>
     </div>
 
-    <!-- Main App Container (Initially Hidden) -->
+    <!-- Main App Container -->
     <div id="main-app" class="hidden">
         <div class="container">
+            
+            <header class="app-header">
+                <h1>Bulk Product Review Scraper</h1>
+                <button id="logout-btn" class="btn-text">Logout</button>
+            </header>
 
-            <!-- Home Page -->
-            <div id="home-page" class="page">
-                <h1>WAI PRODUCT REVIEW SCRAPER/ANALYSIS TEST</h1>
-                <div class="button-container">
-                    <button id="show-individual-page-btn" class="btn">Scrape/analyze individual product</button>
-                    <button id="show-rollup-page-btn" class="btn" disabled>Upload roll-up interchange file (multiple products)</button>
+            <!-- Step 1: Upload Section -->
+            <div id="upload-section" class="card">
+                <h3>1. Upload Input File</h3>
+                <p class="instruction">Upload a CSV file containing a column named <strong>ASIN</strong> or <strong>PartNumber</strong>.</p>
+                
+                <div class="file-drop-area" id="drop-area">
+                    <span class="file-msg">Drag & Drop CSV here or Click to Browse</span>
+                    <input type="file" id="file-input" accept=".csv" class="file-input">
+                </div>
+                
+                <div id="file-info" class="hidden">
+                    <p>Selected file: <span id="filename-display"></span></p>
+                </div>
+
+                <div class="action-row">
+                    <button id="start-scrape-btn" class="btn" disabled>Upload & Start Scraping</button>
                 </div>
             </div>
 
-            <!-- Scrape/Analyze Individual Product Page -->
-            <div id="individual-product-page" class="page hidden">
-                <h2>Scrape/Analyze Individual Product</h2>
-                <div class="form-container">
-                    <!-- Top Row -->
-                    <div class="form-row">
-                        <div class="input-group">
-                            <label for="part-number-input">Enter Amazon ASIN</label>
-                            <input type="text" id="part-number-input" placeholder="e.g., B08C1W5N87">
-                        </div>
-                        <div class="input-group">
-                            <label>Website to scrape</label>
-                            <input type="text" value="Amazon" disabled>
-                        </div>
-                    </div>
-                    <!-- Bottom Row -->
-                    <div class="form-row">
-                        <div class="input-group date-range-group">
-                            <label>Reviews date range (ignored for now)</label>
-                            <div>
-                                <input type="text" placeholder="Start Date" id="date-start-input-individual" disabled>
-                                <input type="text" placeholder="End Date" id="date-end-input-individual" disabled>
-                            </div>
-                            <label class="checkbox-label"><input type="checkbox" id="default-date-checkbox-individual" checked disabled> Scrape reviews from all-time </label>
-                        </div>
-                        <button id="scrape-analyze-btn" class="btn">Scrape and Analyze</button>
-                    </div>
-                </div>
-
-                <div id="loading-indicator-individual" class="hidden">
-                    <p>Processing<span>.</span><span>.</span><span>.</span></p>
+            <!-- Step 2: Processing Status (Initially Hidden) -->
+            <div id="processing-section" class="card hidden">
+                <h3>2. Processing Status</h3>
+                
+                <!-- Simple Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
                 </div>
                 
-                <div id="individual-results" class="results-container hidden">
-                    <h3>Analysis Summary</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Part Number (ASIN)</th>
-                                <th>Average Star Rating</th>
-                                <th>Total Review Count</th>
-                                <th>Total Negative Review Count (1-2 stars)</th>
-                                <th>Negative Review Category</th>
-                            </tr>
-                        </thead>
-                        <tbody id="results-body"></tbody>
-                    </table>
-                    <a href="#" id="download-link-individual" class="btn">Download result csv</a>
+                <!-- Status Log -->
+                <div class="status-log" id="status-log">
+                    <p class="log-entry">Waiting to start...</p>
                 </div>
+                
+                <div id="loading-spinner" class="spinner hidden"></div>
+            </div>
 
-                <button class="btn btn-grey cancel-btn">Cancel</button>
+            <!-- Step 3: Results (Initially Hidden) -->
+            <div id="results-section" class="card hidden">
+                <h3>3. Analysis Complete</h3>
+                <div class="success-message">
+                    <p>✅ Scraping and Analysis finished successfully.</p>
+                </div>
+                <a href="#" id="download-link" class="btn btn-green">Download Final CSV</a>
+                <button id="reset-btn" class="btn btn-grey">Start Over</button>
             </div>
 
         </div>
